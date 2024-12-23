@@ -50,18 +50,22 @@ export const Chat = ({ ...props }: ChatProps) => {
   const { mutate, isLoading } = useMutation({
     mutationKey: "prompt",
     mutationFn: async (prompt: string) => {
-      const response = await fetch(BACKEND_URL+"/ask", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({ question: prompt }),
-      });
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+      try {
+        const response = await fetch(BACKEND_URL + "/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+          body: JSON.stringify({ question: prompt }),
+        });
+        if (!response.ok) {
+          throw { error: { message: "Network response was not ok" } };
+        }
+        return { data: await response.json(), status: response.status };
+      } catch (error) {
+        throw { error: { message: "Server Unreachable" } };
       }
-      return { data: await response.json(), status: response.status };
     },
   });
 
@@ -76,7 +80,7 @@ export const Chat = ({ ...props }: ChatProps) => {
       });
 
       mutate(prompt, {
-        onSuccess({status,data}, variable) {
+        onSuccess({ status, data }, variable) {
           console.log(data, variable);
           if (status === 200) {
             const message = String(data["answer"]);
@@ -92,19 +96,15 @@ export const Chat = ({ ...props }: ChatProps) => {
           updateScroll();
         },
         onError(error) {
+          console.log(JSON.stringify(error), ">>>>>>>");
           type Error = {
-            response: {
-              data: {
-                error: {
-                  code: "invalid_api_key" | string;
-                  message: string;
-                };
-              };
+            error: {
+              message: string;
             };
           };
+          const e: Error = error as Error;
 
-          const { response } = error as Error,
-            message = response.data.error.message;
+          const message = e.error.message;
           addMessage(selectedId, {
             emitter: "error",
             message,
