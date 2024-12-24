@@ -2,7 +2,7 @@
 import gptAvatar from "@/assets/gpt-avatar.svg";
 import warning from "@/assets/warning.svg";
 import user from "@/assets/user.png";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useChat } from "@/store/chat";
 import { useForm } from "react-hook-form";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
@@ -44,6 +44,10 @@ export const Chat = ({ ...props }: ChatProps) => {
   const configuration = new Configuration({
     apiKey: api,
   });
+
+  useEffect(() => {
+    updateScroll();
+  }, [selectedChat]);
 
   const openAi = new OpenAIApi(configuration);
 
