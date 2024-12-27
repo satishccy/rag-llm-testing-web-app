@@ -47,6 +47,7 @@ export const Chat = ({ ...props }: ChatProps) => {
 
   useEffect(() => {
     updateScroll();
+    console.log(selectedChat);
   }, [selectedChat]);
 
   const openAi = new OpenAIApi(configuration);
@@ -55,13 +56,29 @@ export const Chat = ({ ...props }: ChatProps) => {
     mutationKey: "prompt",
     mutationFn: async (prompt: string) => {
       try {
+        let chat_history =
+          selectedChat?.content?.map((msg) => {
+            return msg.emitter !== "error"
+              ? {
+                  role: msg.emitter === "user" ? "human" : "ai",
+                  content: msg.message,
+                }
+              : null;
+          }) || [];
+        console.log(chat_history)
+        //remove nulls in chat_history
+        chat_history = chat_history.filter((msg) => msg !== null);
+        console.log(chat_history);
         const response = await fetch(BACKEND_URL + "/ask", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
           },
-          body: JSON.stringify({ question: prompt }),
+          body: JSON.stringify({
+            question: prompt,
+            chat_history: chat_history,
+          }),
         });
         if (!response.ok) {
           throw { error: { message: "Network response was not ok" } };

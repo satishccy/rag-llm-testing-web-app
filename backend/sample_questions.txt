@@ -1,2 +1,5 @@
 what are the prequisites to learn Java Design Patterns & Devops to build Selenium Framework course?
 what can we learn from 'Postman - Learn API Testing from Scratch with Live Projects' course?
+What are the different types of mobile applications that can be automated with Appium?
+What are the prerequisites for learning Appium?
+What are the benefits of using Appium for mobile testing?
